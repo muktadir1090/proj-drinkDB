@@ -1,46 +1,34 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const apiURL = 'https://www.thecocktaildb.com/api/json/v1/1/search.php?s=margarita';
-
-    fetch(apiURL)
-        .then(response => response.json())
-        .then(data => displayRecipe(data))
-        .catch(error => console.error('Error fetching data:', error));
-});
-
-function displayRecipe(data) {
-    const recipeResult = document.getElementById('recipe-result');
-    recipeResult.innerHTML = '';
-
-    if (data.drinks) {
-        const drink = data.drinks[0];
-        const recipeHTML = `
-            <p class="title is-4">${drink.strDrink}</p>
-            <p><strong>Category:</strong> ${drink.strCategory}</p>
-            <p><strong>Alcoholic:</strong> ${drink.strAlcoholic}</p>
-            <p><strong>Glass:</strong> ${drink.strGlass}</p>
-            <p><strong>Instructions:</strong> ${drink.strInstructions}</p>
-            <p><strong>Ingredients:</strong></p>
-            <ul>
-                ${getIngredientsList(drink)}
-            </ul>
-            <figure class="image is-4by3">
-                <img src="${drink.strDrinkThumb}" alt="Drink Image">
-            </figure>
-        `;
-        recipeResult.innerHTML = recipeHTML;
-    } else {
-        recipeResult.innerHTML = '<p>No recipe found for this drink.</p>';
-    }
-}
-
-function getIngredientsList(drink) {
-    let ingredients = '';
-    for (let i = 1; i <= 15; i++) {
-        if (drink[`strIngredient${i}`]) {
-            ingredients += `<li>${drink[`strIngredient${i}`]} - ${drink[`strMeasure${i}`] || ''}</li>`;
-        } else {
-            break;
-        }
-    }
-    return ingredients;
-}
+document.getElementById('getRecipeBtn').addEventListener('click', function() {
+        const drinkName = document.getElementById('drinkInput').value;
+        const apiUrl = `https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${drinkName}`;
+    
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const recipeDiv = document.getElementById('recipeDisplay');
+                recipeDiv.innerHTML = ''; // Clear previous content
+    
+                if (data.drinks) {
+                    const drink = data.drinks[0];
+                    recipeDiv.innerHTML = `
+                        <h2>${drink.strDrink}</h2>
+                        <img src="${drink.strDrinkThumb}" alt="${drink.strDrink}">
+                        <h3>Ingredients:</h3>
+                        <ul>
+                            ${Object.keys(drink)
+                                .filter(key => key.startsWith('strIngredient') && drink[key])
+                                .map(key => `<li>${drink[key]} - ${drink[`strMeasure${key.match(/\d+/)[0]}`] || ''}</li>`)
+                                .join('')}
+                        </ul>
+                        <h3>Instructions:</h3>
+                        <p>${drink.strInstructions}</p>
+                    `;
+                } else {
+                    recipeDiv.innerHTML = '<p>No recipe found. Please try another drink.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                document.getElementById('recipeDisplay').innerHTML = '<p>Error fetching recipe. Please try again later.</p>';
+            });
+    });
