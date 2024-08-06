@@ -11,7 +11,7 @@ document.getElementById('getRecipeBtn').addEventListener('click', function() {
                 if (data.drinks) {
                     const drink = data.drinks[0];
                     recipeDiv.innerHTML = `
-                        <h2>${drink.strDrink}</h2>
+              h2>${drink.strDrink}</h2>
                         <img src="${drink.strDrinkThumb}" alt="${drink.strDrink}">
                         <h3>Ingredients:</h3>
                         <ul>
